@@ -217,9 +217,7 @@ export function ConfigurationForm() {
   }, [
     pgState.sessionConfig,
     pgState.instructions,
-    pgState.geminiAPIKey,
     localParticipant,
-    toast,
     agent,
   ]);
   const handleDebouncedUpdate = useCallback(() => {
