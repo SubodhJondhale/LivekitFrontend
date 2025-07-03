@@ -158,67 +158,67 @@ export function ConfigurationForm() {
 
   // 3. `updateConfig` function is updated to include the URL parameters.
   const updateConfig = useCallback(async () => {
-    if (!localParticipant || !agent?.identity) {
-      return;
-    }
-    const values = pgState.sessionConfig;
+    // if (!localParticipant || !agent?.identity) {
+    //   return;
+    // }
+    // const values = pgState.sessionConfig;
 
-    // The 'attributes' object now merges the form config with the URL params.
-    const attributes: { [key: string]: string } = {
-      // Attributes from your existing global state
-      gemini_api_key: getUrlParams() || "",
-      instructions: pgState.instructions,
-      voice: values.voice,
-      modalities: values.modalities,
-      temperature: values.temperature.toString(),
-      max_output_tokens: values.maxOutputTokens
-        ? values.maxOutputTokens.toString()
-        : "",
-      api_key:""
-    };
+    // // The 'attributes' object now merges the form config with the URL params.
+    // const attributes: { [key: string]: string } = {
+    //   // Attributes from your existing global state
+    //   gemini_api_key: getUrlParams() || "",
+    //   instructions: pgState.instructions,
+    //   voice: values.voice,
+    //   modalities: values.modalities,
+    //   temperature: values.temperature.toString(),
+    //   max_output_tokens: values.maxOutputTokens
+    //     ? values.maxOutputTokens.toString()
+    //     : "",
+    //   api_key:""
+    // };
   
-    const hadExistingAttributes =
-      Object.keys(localParticipant.attributes).length > 0;
+    // const hadExistingAttributes =
+    //   Object.keys(localParticipant.attributes).length > 0;
 
-    const onlyVoiceChanged = Object.keys(attributes).every(
-      (key) =>
-        key === "voice" ||
-        attributes[key] === (localParticipant.attributes[key] as string)
-    );
+    // const onlyVoiceChanged = Object.keys(attributes).every(
+    //   (key) =>
+    //     key === "voice" ||
+    //     attributes[key] === (localParticipant.attributes[key] as string)
+    // );
 
-    if (onlyVoiceChanged && hadExistingAttributes) {
-      return;
-    }
+    // if (onlyVoiceChanged && hadExistingAttributes) {
+    //   return;
+    // }
 
-    try {
-      let response = await localParticipant.performRpc({
-        destinationIdentity: agent.identity,
-        method: "pg.updateConfig",
-        payload: JSON.stringify(attributes),
-      });
-      console.log("pg.updateConfig", response);
-      let responseObj = JSON.parse(response as string);
-      if (responseObj.changed) {
-        // toast({
-        //   title: "Configuration Updated",
-        //   description: "Your changes have been applied successfully.",
-        //   variant: "success",
-        // });
-      }
-    } catch (e) {
-      // console.error("Error updating configuration:", e);
-      // toast({
-      //   title: "Error Updating Configuration",
-      //   description:
-      //     "There was an error updating your configuration. Please try again.",
-      //   variant: "destructive",
-      // });
-    }
+    // try {
+    //   let response = await localParticipant.performRpc({
+    //     destinationIdentity: agent.identity,
+    //     method: "pg.updateConfig",
+    //     payload: JSON.stringify(attributes),
+    //   });
+    //   console.log("pg.updateConfig", response);
+    //   let responseObj = JSON.parse(response as string);
+    //   if (responseObj.changed) {
+    //     // toast({
+    //     //   title: "Configuration Updated",
+    //     //   description: "Your changes have been applied successfully.",
+    //     //   variant: "success",
+    //     // });
+    //   }
+    // } catch (e) {
+    //   // console.error("Error updating configuration:", e);
+    //   // toast({
+    //   //   title: "Error Updating Configuration",
+    //   //   description:
+    //   //     "There was an error updating your configuration. Please try again.",
+    //   //   variant: "destructive",
+    //   // });
+    // }
   }, [
-  localParticipant,
-  agent,
-  pgState.sessionConfig,
-  pgState.instructions,
+  // localParticipant,
+  // agent,
+  // pgState.sessionConfig,
+  // pgState.instructions,
   ]);
   const handleDebouncedUpdate = useCallback(() => {
     if (debounceTimeoutRef.current) {
