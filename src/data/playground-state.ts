@@ -17,6 +17,7 @@ export interface PlaygroundState {
   selectedPresetId: string | null;
   geminiAPIKey: string | null | undefined;
   instructions: string;
+  api_key:string;
 }
 
 export const defaultSessionConfig: SessionConfig = {
@@ -29,6 +30,7 @@ export const defaultSessionConfig: SessionConfig = {
 
 // Define the initial state
 export const defaultPlaygroundState: PlaygroundState = {
+  api_key:"",
   sessionConfig: { ...defaultSessionConfig },
   userPresets: [],
   selectedPresetId: "helpful-ai",
