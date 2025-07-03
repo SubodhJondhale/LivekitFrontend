@@ -1,6 +1,5 @@
 "use client";
 
-import Logo from "@/assets/goqii.svg";
 
 export default function LK() {
   return (
