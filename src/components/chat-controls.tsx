@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Settings, AudioLines } from "lucide-react";
+import { Settings } from "lucide-react";
 import { ConfigurationFormDrawer } from "@/components/configuration-form-drawer";
 
 interface ChatControlsProps {
