@@ -1,14 +1,8 @@
 import { Metadata } from "next";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { RoomComponent } from "@/components/room-component";
 import LK from "@/components/lk";
 import Gemini from "@/components/gemini";
-import Heart from "@/assets/heart.svg";
 import { defaultPresets } from "@/data/presets";
-import { CodeViewer } from "@/components/code-viewer";
-import { PresetSave } from "@/components/preset-save";
-import { PresetSelector } from "@/components/preset-selector";
-import { PresetShare } from "@/components/preset-share";
 
 export async function generateMetadata({
   searchParams,
