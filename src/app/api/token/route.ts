@@ -18,6 +18,7 @@ export async function POST(request: Request) {
   }
 
   const {
+    api_key,
     instructions ,
     geminiAPIKey,
     sessionConfig: { modalities, voice, temperature, maxOutputTokens },
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
       temperature: temperature,
       max_output_tokens: maxOutputTokens,
       gemini_api_key: geminiAPIKey,
+      api_key:api_key
     }),
   });
   at.addGrant({
