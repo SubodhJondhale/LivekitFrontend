@@ -17,7 +17,7 @@ import {
 import { playgroundStateHelpers } from "@/lib/playground-state-helpers";
 
 import { Preset, defaultPresets } from "@/data/presets";
-import { getUrlParams } from "@/components/configuration-form";
+
 
 const LS_GEMINI_API_KEY_NAME = "GEMINI_API_KEY";
 const LS_USER_PRESETS_KEY = "PG_USER_PRESETS";
