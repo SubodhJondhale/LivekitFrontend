@@ -8,8 +8,8 @@ import { usePlaygroundState } from "@/hooks/use-playground-state";
 import { AuthDialog } from "./auth";
 
 export function ConnectButton() {
-  const { connect, disconnect, shouldConnect } = useConnection();
-  const [connecting, setConnecting] = useState<boolean>(false);
+  // const { connect, disconnect, shouldConnect } = useConnection();
+  const { connect, disconnect, shouldConnect, isConnecting } = useConnection();
   const { pgState } = usePlaygroundState();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [initiateConnectionFlag, setInitiateConnectionFlag] = useState(false);
@@ -18,23 +18,12 @@ export function ConnectButton() {
     if (shouldConnect) {
       await disconnect();
     } else {
-      if (!pgState.geminiAPIKey) {
-        setShowAuthDialog(true);
-      } else {
-        await initiateConnection();
-      }
+        await connect(); // Directly call the guarded connect function
     }
   };
 
   const initiateConnection = useCallback(async () => {
-    setConnecting(true);
-    try {
       await connect();
-    } catch (error) {
-      console.error("Connection failed:", error);
-    } finally {
-      setConnecting(false);
-    }
   }, [connect]);
 
   const handleAuthComplete = () => {
@@ -53,17 +42,17 @@ export function ConnectButton() {
     <>
       <Button
         onClick={handleConnectionToggle}
-        disabled={connecting || shouldConnect}
+        disabled={isConnecting || shouldConnect} // Use global state
         variant="primary"
         className="text-sm font-semibold"
       >
-        {connecting || shouldConnect ? (
+        {isConnecting || shouldConnect ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Connecting
+            {isConnecting ? "Connecting" : "Connected"} 
           </>
         ) : (
-          <>Connect</>
+          "Connect"
         )}
       </Button>
       <AuthDialog
