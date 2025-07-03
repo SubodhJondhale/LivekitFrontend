@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef} from "react"; // Added useState
+import { useEffect, useCallback, useRef, useState } from "react"; // Added useState
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -174,7 +174,7 @@ export function ConfigurationForm() {
       max_output_tokens: values.maxOutputTokens
         ? values.maxOutputTokens.toString()
         : "",
-      
+      api_key:""
     };
   
     const hadExistingAttributes =
@@ -215,10 +215,10 @@ export function ConfigurationForm() {
       // });
     }
   }, [
-    pgState.sessionConfig,
-    pgState.instructions,
-    localParticipant,
-    agent,
+  localParticipant,
+  agent,
+  pgState.sessionConfig,
+  pgState.instructions,
   ]);
   const handleDebouncedUpdate = useCallback(() => {
     if (debounceTimeoutRef.current) {
