@@ -14,6 +14,7 @@ import { getUrlParams } from "@/components/configuration-form";
 export type ConnectFn = () => Promise<void>;
 
 type TokenGeneratorData = {
+  isConnecting: boolean
   shouldConnect: boolean;
   wsUrl: string;
   token: string;
@@ -38,9 +39,9 @@ export const ConnectionProvider = ({
     shouldConnect: boolean;
     voice: VoiceId;
   }>({ wsUrl: "", token: "", shouldConnect: false, voice: VoiceId.PUCK });
-
+const [isConnecting, setIsConnecting] = useState(false);
   const { pgState } = usePlaygroundState();
-
+const [hasAutoConnected, setHasAutoConnected] = useState(false);
   const BASE_URL = "https://apiv7.goqii.com/";
 
 // Function to get headers from URL parameters
@@ -119,7 +120,13 @@ async function fetch7DayFoodData() {
     return null;
   }
 }
-  const connect = async () => {
+  const connect = useCallback(async () => {
+    // Prevents re-connection if already in progress
+    if (isConnecting) {
+      return;
+    }
+
+    setIsConnecting(true);
     pgState.geminiAPIKey = JSON.stringify(getUrlParams());
     // console.log(pgState)
     fetchMyOrders("1").then(async (dataOrder) => { // <--- Added 'async' here
@@ -170,12 +177,19 @@ async function fetch7DayFoodData() {
        }
       })
 
-  };
+  }, [isConnecting, pgState]);
 
-  const disconnect = useCallback(async () => {
-    setConnectionDetails((prev) => ({ ...prev, shouldConnect: false }));
-  }, []);
-
+const disconnect = useCallback(async () => {
+  setIsConnecting(false); // Add this line to reset the connecting state immediately
+  setConnectionDetails((prev) => ({ ...prev, shouldConnect: false }));
+}, []);
+useEffect(() => {
+  // Only run the automatic connection once on the initial load.
+  if (!hasAutoConnected) {
+    connect();
+    setHasAutoConnected(true);
+  }
+}, [connect, hasAutoConnected]);
   // Effect to handle API key changes
   useEffect(() => {
     if (pgState.geminiAPIKey === null && connectionDetails.shouldConnect) {
@@ -186,6 +200,7 @@ async function fetch7DayFoodData() {
   return (
     <ConnectionContext.Provider
       value={{
+        isConnecting,
         wsUrl: connectionDetails.wsUrl,
         token: connectionDetails.token,
         shouldConnect: connectionDetails.shouldConnect,
