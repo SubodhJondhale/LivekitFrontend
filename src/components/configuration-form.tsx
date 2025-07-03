@@ -1,48 +1,44 @@
 "use client";
 
-import React, {
-  createContext,
-  useState,
-  useCallback,
-  useContext,
-  useEffect,
-} from "react";
-import { PlaygroundState } from "@/data/playground-state";
-import { usePlaygroundState } from "./use-playground-state";
+import { useEffect, useCallback, useRef, useState } from "react"; // Added useState
+import { useForm, UseFormReturn } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  useConnectionState,
+  useLocalParticipant,
+  useVoiceAssistant,
+} from "@livekit/components-react";
+import { ConnectionState } from "livekit-client";
+import { RotateCcw } from "lucide-react";
+
+import { Form } from "@/components/ui/form";
+import { SessionConfig } from "@/components/session-config";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useConnection } from "@/hooks/use-connection";
+import { usePlaygroundState } from "@/hooks/use-playground-state";
+
 import { VoiceId } from "@/data/voices";
-import { getUrlParams } from "@/components/configuration-form";
-export type ConnectFn = () => Promise<void>;
+import { ModelId } from "@/data/models";
+import { ModalitiesId } from "@/data/modalities";
+import { defaultSessionConfig } from "@/data/playground-state";
 
-type TokenGeneratorData = {
-  isConnecting: boolean
-  shouldConnect: boolean;
-  wsUrl: string;
-  token: string;
-  pgState: PlaygroundState;
-  voice: VoiceId;
-  disconnect: () => Promise<void>;
-  connect: ConnectFn;
-};
+// The Zod schema remains unchanged.
+export const ConfigurationFormSchema = z.object({
+  model: z.nativeEnum(ModelId),
+  modalities: z.nativeEnum(ModalitiesId),
+  voice: z.nativeEnum(VoiceId),
+  temperature: z.number().min(0.6).max(1.2),
+  maxOutputTokens: z.number().nullable(),
+});
 
-const ConnectionContext = createContext<TokenGeneratorData | undefined>(
-  undefined,
-);
+export interface ConfigurationFormFieldProps {
+  form: UseFormReturn<z.infer<typeof ConfigurationFormSchema>>;
+  schema?: typeof ConfigurationFormSchema;
+}
 
-export const ConnectionProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [connectionDetails, setConnectionDetails] = useState<{
-    wsUrl: string;
-    token: string;
-    shouldConnect: boolean;
-    voice: VoiceId;
-  }>({ wsUrl: "", token: "", shouldConnect: false, voice: VoiceId.PUCK });
-const [isConnecting, setIsConnecting] = useState(false);
-  const { pgState } = usePlaygroundState();
-const [hasAutoConnected, setHasAutoConnected] = useState(false);
-  const BASE_URL = "https://apiv7.goqii.com/";
+const BASE_URL = "https://apiv7.goqii.com/";
 
 // Function to get headers from URL parameters
 function getHeaders() {
@@ -120,107 +116,173 @@ async function fetch7DayFoodData() {
     return null;
   }
 }
-  const connect = useCallback(async () => {
-    // Prevents re-connection if already in progress
-    if (isConnecting) {
-      return;
+
+  export function getUrlParams(): string {
+    // Return an empty JSON object if not in a browser environment (e.g., during SSR)
+    if (typeof window === "undefined") {
+      return JSON.stringify({});
     }
 
-    setIsConnecting(true);
-    pgState.geminiAPIKey = JSON.stringify(getUrlParams());
-    // console.log(pgState)
-    fetchMyOrders("1").then(async (dataOrder) => { // <--- Added 'async' here
-      if (dataOrder) {
-        
-        fetch7DayFoodData().then(async (dataFood) => { // <--- Added 'async' here
-          if (dataFood) {
-            const value = pgState.instructions;
-            let combined = (
-                value + // data.get("instructions", "") becomes data.instructions || ""
-                "\n\nHere is the user's order details for reference:\n" +
-                JSON.stringify(dataOrder) +
-                "\n\nHere is the user's food log data for the last 7 days. " +
-                "Analyze this data and provide nutrition and habit analysis, including " +
-                "what the user is doing right, what they are doing wrong, and what they can improve:\n" +
-                JSON.stringify(dataFood)
-            );
-
-            //Idhar dalo API_Key
-            pgState.api_key = "AIzaSyDdjpu0imnlYmGLBLEmd4gs0RwuutL4dBg"
-            pgState.instructions = JSON.stringify(combined)
-            console.log("My Orders:", pgState.instructions);
-            if (!pgState.geminiAPIKey) {
-              throw new Error("Gemini API key is required to connect");
-            }
-            const response = await fetch("/api/token", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(pgState),
-            });
-
-            if (!response.ok) {
-              throw new Error("Failed to fetch token");
-            }
-
-            const { accessToken, url } = await response.json();
-
-            setConnectionDetails({
-              wsUrl: url,
-              token: accessToken,
-              shouldConnect: true,
-              voice: pgState.sessionConfig.voice,
-            });
-          }
-         })
-       }
-      })
-
-  }, [isConnecting, pgState]);
-
-const disconnect = useCallback(async () => {
-  setIsConnecting(false); // Add this line to reset the connecting state immediately
-  setConnectionDetails((prev) => ({ ...prev, shouldConnect: false }));
-}, []);
-useEffect(() => {
-  // Only run the automatic connection once on the initial load.
-  if (!hasAutoConnected) {
-    connect();
-    setHasAutoConnected(true);
+    const params = new URLSearchParams(window.location.search);
+    const value = {
+      goqiiUserId: params.get("goqiiUserId") || params.get("goqiiuserid") || "",
+      nonce: params.get("nonce") || params.get("Nonce") || "",
+      signature: params.get("signature") || params.get("Signature") || "",
+      apiKey: params.get("apiKey") || params.get("apikey") || "",
+      goqiiAccessToken:
+        params.get("goqiiAccessToken") || params.get("goqiiaccesstoken") || "",
+      pagination: params.get("pagination") || params.get("Pagination") || "",
+      appVersion: params.get("appVersion") || params.get("AppVersion") || "",
+      appType: params.get("appType") || params.get("AppType") || "",
+      goqiiCoachId:
+        params.get("goqiiCoachId") || params.get("goqiicoachid") || "",
+    };
+    return JSON.stringify(value);
   }
-}, [connect, hasAutoConnected]);
-  // Effect to handle API key changes
-  useEffect(() => {
-    if (pgState.geminiAPIKey === null && connectionDetails.shouldConnect) {
-      disconnect();
+export function ConfigurationForm() {
+  const { pgState, dispatch } = usePlaygroundState();
+  const connectionState = useConnectionState();
+  const { voice, disconnect, connect } = useConnection();
+  const { localParticipant } = useLocalParticipant();
+  const { toast } = useToast();
+  const { agent } = useVoiceAssistant();
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const form = useForm<z.infer<typeof ConfigurationFormSchema>>({
+    resolver: zodResolver(ConfigurationFormSchema),
+    defaultValues: { ...defaultSessionConfig },
+    mode: "onChange",
+  });
+  const formValues = form.watch();
+
+
+  // 3. `updateConfig` function is updated to include the URL parameters.
+  const updateConfig = useCallback(async () => {
+    // if (!localParticipant || !agent?.identity) {
+    //   return;
+    // }
+    // const values = pgState.sessionConfig;
+
+    // // The 'attributes' object now merges the form config with the URL params.
+    // const attributes: { [key: string]: string } = {
+    //   // Attributes from your existing global state
+    //   gemini_api_key: getUrlParams() || "",
+    //   instructions: pgState.instructions,
+    //   voice: values.voice,
+    //   modalities: values.modalities,
+    //   temperature: values.temperature.toString(),
+    //   max_output_tokens: values.maxOutputTokens
+    //     ? values.maxOutputTokens.toString()
+    //     : "",
+    //   api_key:""
+    // };
+  
+    // const hadExistingAttributes =
+    //   Object.keys(localParticipant.attributes).length > 0;
+
+    // const onlyVoiceChanged = Object.keys(attributes).every(
+    //   (key) =>
+    //     key === "voice" ||
+    //     attributes[key] === (localParticipant.attributes[key] as string)
+    // );
+
+    // if (onlyVoiceChanged && hadExistingAttributes) {
+    //   return;
+    // }
+
+    // try {
+    //   let response = await localParticipant.performRpc({
+    //     destinationIdentity: agent.identity,
+    //     method: "pg.updateConfig",
+    //     payload: JSON.stringify(attributes),
+    //   });
+    //   console.log("pg.updateConfig", response);
+    //   let responseObj = JSON.parse(response as string);
+    //   if (responseObj.changed) {
+    //     // toast({
+    //     //   title: "Configuration Updated",
+    //     //   description: "Your changes have been applied successfully.",
+    //     //   variant: "success",
+    //     // });
+    //   }
+    // } catch (e) {
+    //   // console.error("Error updating configuration:", e);
+    //   // toast({
+    //   //   title: "Error Updating Configuration",
+    //   //   description:
+    //   //     "There was an error updating your configuration. Please try again.",
+    //   //   variant: "destructive",
+    //   // });
+    // }
+  }, [
+  // localParticipant,
+  // agent,
+  // pgState.sessionConfig,
+  // pgState.instructions,
+  ]);
+  const handleDebouncedUpdate = useCallback(() => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
     }
-  }, [pgState.geminiAPIKey, connectionDetails.shouldConnect, disconnect]);
+    debounceTimeoutRef.current = setTimeout(() => {
+      updateConfig();
+    }, 500);
+  }, [updateConfig]);
+
+  useEffect(() => {
+    if (form.formState.isValid && form.formState.isDirty) {
+      dispatch({
+        type: "SET_SESSION_CONFIG",
+        payload: formValues,
+      });
+    }
+  }, [formValues, dispatch, form.formState.isDirty, form.formState.isValid]); // Corrected dependencies
+
+  useEffect(() => {
+    if (ConnectionState.Connected === connectionState) {
+      handleDebouncedUpdate();
+    }
+    form.reset(pgState.sessionConfig);
+  }, [pgState.sessionConfig, connectionState, handleDebouncedUpdate, form]);
 
   return (
-    <ConnectionContext.Provider
-      value={{
-        isConnecting,
-        wsUrl: connectionDetails.wsUrl,
-        token: connectionDetails.token,
-        shouldConnect: connectionDetails.shouldConnect,
-        voice: connectionDetails.voice,
-        pgState,
-        connect,
-        disconnect,
-      }}
-    >
-      {children}
-    </ConnectionContext.Provider>
+    <Form {...form}>
+      <form className="h-full">
+        <div className="flex flex-col h-full">
+          <div className="flex-shrink-0 py-4 px-1">
+            <div className="text-xs font-semibold uppercase tracking-widest">
+              Configuration
+            </div>
+          </div>
+          <div className="flex-grow overflow-y-auto py-4 pt-0">
+            <div className="space-y-4">
+              <SessionConfig form={form} />
+              {pgState.sessionConfig.voice !== voice &&
+                ConnectionState.Connected === connectionState && (
+                  <div className="flex flex-col">
+                    <div className="text-xs my-2">
+                      Your change to the voice parameter requires a reconnect.
+                    </div>
+                    <div className="flex w-full">
+                      <Button
+                        className="flex-1"
+                        type="button"
+                        variant="primary"
+                        onClick={() => {
+                          disconnect().then(() => {
+                            connect();
+                          });
+                        }}
+                      >
+                        <RotateCcw className="mr-2 h-4 w-4" /> Reconnect Now
+                      </Button>
+                    </div>
+                  </div>
+                )}
+            </div>
+          </div>
+        </div>
+      </form>
+    </Form>
   );
-};
-
-export const useConnection = () => {
-  const context = useContext(ConnectionContext);
-
-  if (context === undefined) {
-    throw new Error("useConnection must be used within a ConnectionProvider");
-  }
-
-  return context;
-};
+}
