@@ -138,6 +138,8 @@ async function fetch7DayFoodData() {
                 JSON.stringify(dataFood)
             );
 
+            //Idhar dalo API_Key
+            pgState.api_key = "AIzaSyDdjpu0imnlYmGLBLEmd4gs0RwuutL4dBg"
             pgState.instructions = JSON.stringify(combined)
             console.log("My Orders:", pgState.instructions);
             if (!pgState.geminiAPIKey) {
