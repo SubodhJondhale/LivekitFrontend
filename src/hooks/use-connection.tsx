@@ -129,25 +129,17 @@ async function fetch7DayFoodData() {
     setIsConnecting(true);
     pgState.geminiAPIKey = JSON.stringify(getUrlParams());
     // console.log(pgState)
-    fetchMyOrders("1").then(async (dataOrder) => { // <--- Added 'async' here
-      if (dataOrder) {
+    // fetchMyOrders("1").then(async (dataOrder) => { // <--- Added 'async' here
+    //   if (dataOrder) {
         
-        fetch7DayFoodData().then(async (dataFood) => { // <--- Added 'async' here
-          if (dataFood) {
+    //     fetch7DayFoodData().then(async (dataFood) => { // <--- Added 'async' here
+    //       if (dataFood) {
             const value = pgState.instructions;
-            let combined = (
-                value + // data.get("instructions", "") becomes data.instructions || ""
-                "\n\nHere is the user's order details for reference:\n" +
-                JSON.stringify(dataOrder) +
-                "\n\nHere is the user's food log data for the last 7 days. " +
-                "Analyze this data and provide nutrition and habit analysis, including " +
-                "what the user is doing right, what they are doing wrong, and what they can improve:\n" +
-                JSON.stringify(dataFood)
-            );
+
 
             //Idhar dalo API_Key
             pgState.api_key = "AIzaSyDdjpu0imnlYmGLBLEmd4gs0RwuutL4dBg"
-            pgState.instructions = JSON.stringify(combined)
+            pgState.instructions = JSON.stringify(value)
             console.log("My Orders:", pgState.instructions);
             if (!pgState.geminiAPIKey) {
               throw new Error("Gemini API key is required to connect");
@@ -172,10 +164,10 @@ async function fetch7DayFoodData() {
               shouldConnect: true,
               voice: pgState.sessionConfig.voice,
             });
-          }
-         })
-       }
-      })
+          // }
+      //    })
+      //  }
+      // })
 
   }, [isConnecting, pgState]);
 
