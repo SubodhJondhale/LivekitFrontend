@@ -9,7 +9,7 @@ export default function LK() {
       target="_blank"
       rel="noopener noreferrer"
     >
-      GOQii AI
+    
     </a>
   );
 }
