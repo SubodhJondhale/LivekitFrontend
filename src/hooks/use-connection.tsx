@@ -38,7 +38,7 @@ export const ConnectionProvider = ({
     token: string;
     shouldConnect: boolean;
     voice: VoiceId;
-  }>({ wsUrl: "", token: "", shouldConnect: false, voice: VoiceId.PUCK });
+  }>({ wsUrl: "", token: "", shouldConnect: false, voice: VoiceId.AOEDE });
 const [isConnecting, setIsConnecting] = useState(false);
   const { pgState } = usePlaygroundState();
 const [hasAutoConnected, setHasAutoConnected] = useState(false);
