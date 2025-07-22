@@ -15,7 +15,7 @@ export function ChatControls({
 }: ChatControlsProps) {
   return (
     <div className="absolute top-2 left-2 right-2 flex justify-between">
-      <div className="flex gap-2">
+      <div className="flex gap-2 pl-2">
         <ConfigurationFormDrawer>
           <Button variant="outline" size="newSize" className="lg:hidden">
             <Settings className="h-10 w-10" />
