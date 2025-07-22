@@ -23,7 +23,7 @@ export interface PlaygroundState {
 export const defaultSessionConfig: SessionConfig = {
   model: ModelId.GEMINI_2_0_FLASH_EXT,
   modalities: ModalitiesId.AUDIO_ONLY,
-  voice: VoiceId.PUCK,
+  voice: VoiceId.AOEDE,
   temperature: 0.8,
   maxOutputTokens: null,
 };
