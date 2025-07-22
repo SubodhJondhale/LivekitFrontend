@@ -10,7 +10,7 @@ export default function LK() {
       target="_blank"
       rel="noopener noreferrer"
     >
-     <Logo height="64"  />
+     <Logo height="80"  />
     </a>
   );
 }
