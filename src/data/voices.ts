@@ -1,9 +1,9 @@
 export enum VoiceId {
+  AOEDE = "Aoede",
+  KORE = "Kore",
   PUCK = "Puck",
   CHARON = "Charon",
-  KORE = "Kore",
   FENRIR = "Fenrir",
-  AOEDE = "Aoede",
 }
 
 export interface Voice {
