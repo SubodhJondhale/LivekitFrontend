@@ -48,24 +48,6 @@ export async function generateMetadata({
 export default function Dashboard() {
   return (
     <div className="flex flex-col h-dvh bg-neutral-900">
-      <header className="flex flex-col md:flex-row flex-shrink-0 gap-3 md:h-12 items-center justify-between pt-10 px-5 py-0 w-full md:mx-auto">
-        <div className="flex items-center gap-3">
-          <LK />
-          {/* <span className="h-8 border-r border-white/10"></span> */}
-          <div className="flex gap-2 items-center">
-            <Gemini />
-            <span className="text-[18px] pt-[3px] font-light">
-            
-            </span>
-          </div>
-        </div>
-        {/* <div className="inline-flex flex-row items-center space-x-2">
-          <PresetSelector />
-          <PresetSave />
-          <PresetShare />
-          <CodeViewer />
-        </div> */}
-      </header>
       <main className="flex flex-col flex-grow overflow-hidden p-0 pb-4 lg:pb-0 w-full md:mx-auto">
         <RoomComponent />
       </main>
