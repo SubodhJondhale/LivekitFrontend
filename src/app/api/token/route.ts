@@ -37,9 +37,9 @@ export async function POST(request: Request) {
   if (!apiKey || !apiSecret) {
     throw new Error("LIVEKIT_API_KEY and LIVEKIT_API_SECRET must be set");
   }
-
+const identity = `human-${Math.random().toString(36).slice(2, 9)}`;
   const at = new AccessToken(apiKey, apiSecret, {
-    identity: "human",
+    identity: identity,
     metadata: JSON.stringify({
       instructions: instructions,
       modalities: modalities,
