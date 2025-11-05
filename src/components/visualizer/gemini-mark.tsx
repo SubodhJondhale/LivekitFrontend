@@ -11,10 +11,14 @@ const accentColor = "#5282ed";
 const disconnectedColor = "#030303";
 
 // Logo colors
-const orangeColor = "#F39C12";
-const redColor = "#E74C3C";
-const greenColor = "#27AE60";
-const blueColor = "#3498DB";
+const orangeColor = "#F7941D"; // Top-Left (Orange/Yellow)
+const redColor = "#ED1C24"; // Top-Right (Red)
+const greenColor = "#4DBF48"; // Bottom-Left (Green)
+const blueColor = "#1C75BC"; // Bottom-Right (Blue)
+// const orangeColor = "#F39C12";
+// const redColor = "#E74C3C";
+// const greenColor = "#27AE60";
+// const blueColor = "#3498DB";
 
 const Shape: React.FC<{ volume: number; state: AgentState }> = ({
   volume,
