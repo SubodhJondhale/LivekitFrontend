@@ -47,8 +47,8 @@ export async function generateMetadata({
 
 export default function Dashboard() {
   return (
-    <div className="flex flex-col h-dvh bg-neutral-900">
-      <main className="flex flex-col flex-grow overflow-hidden p-0 pb-6 pt-4 lg:pb-0 w-full md:mx-auto">
+    <div className="flex flex-col h-dvh">
+      <main className="flex flex-col flex-grow overflow-hidden w-full md:mx-auto">
         <RoomComponent />
       </main>
     </div>
