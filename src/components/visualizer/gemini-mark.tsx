@@ -4,17 +4,16 @@ import React, { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import * as THREE from "three";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { AgentState } from "@livekit/components-react";
 
 const accentColor = "#5282ed";
 const disconnectedColor = "#030303";
 
-// Logo colors
 const orangeColor = "#F7941D"; // Top-Left (Orange/Yellow)
 const redColor = "#ED1C24"; // Top-Right (Red)
 const greenColor = "#4DBF48"; // Bottom-Left (Green)
 const blueColor = "#1C75BC"; // Bottom-Right (Blue)
+// // Logo colors
 // const orangeColor = "#F39C12";
 // const redColor = "#E74C3C";
 // const greenColor = "#27AE60";
@@ -70,20 +69,6 @@ const Shape: React.FC<{ volume: number; state: AgentState }> = ({
       );
       groupRef.current.scale.setScalar(scale);
 
-      const targetHex = isDisconnected ? disconnectedColor : accentColor;
-      targetColor.current.set(targetHex);
-      emissiveColor.current.lerp(targetColor.current, 0.1);
-
-      // Update material for each child mesh
-      groupRef.current.children.forEach((child) => {
-        if (child instanceof THREE.Mesh) {
-          const material = child.material as THREE.MeshStandardMaterial;
-          if (material) {
-            material.emissive = emissiveColor.current;
-            material.emissiveIntensity = isDisconnected ? 0.5 : volume > 0 ? 3.5 : 0.25;
-          }
-        }
-      });
     }
   });
 
@@ -118,7 +103,7 @@ const Shape: React.FC<{ volume: number; state: AgentState }> = ({
     sections.push({
       geometry: new THREE.BoxGeometry(boxSize, boxSize, depth),
       color: greenColor,
-      position: [-boxSize / 2 - gap / 2, -boxSize / 2 - gap / 2, 0]
+      position: [-boxSize / 2 - gap / 2, -boxSize / 2 - gap, 0]
     });
 
     // Blue section (bottom-right) - 4 small squares
@@ -126,7 +111,7 @@ const Shape: React.FC<{ volume: number; state: AgentState }> = ({
     sections.push({
       geometry: new THREE.BoxGeometry(boxSize, boxSize, depth),
       color: blueColor,
-      position: [boxSize / 2 + gap / 2, -boxSize / 2 - gap / 2, 0]
+      position: [boxSize / 2 + gap / 2, -boxSize / 2 - gap, 0]
     });
 
 
@@ -173,7 +158,7 @@ const Shape: React.FC<{ volume: number; state: AgentState }> = ({
 
     const boxSize = 0.9;
     const gap = 0.05;
-    const lineThickness = 0.08;
+    const lineThickness = 0.09;
     const lineLength = 0.50;
     const lineLength2 = 0.35;
     const zOffset = 0.16; // Position lines slightly in front
@@ -260,30 +245,24 @@ const Shape: React.FC<{ volume: number; state: AgentState }> = ({
   };
 
   // White material for lines
-  const whiteTexture = createSolidColorTexture("#FFFFFF");
-  const whiteMaterial = new THREE.MeshStandardMaterial({
-    map: whiteTexture,
-    emissiveMap: whiteTexture,
-    roughness: 0.3,
-    metalness: 0.1,
-    emissive: new THREE.Color("#FFFFFF"),
-    emissiveIntensity: isDisconnected ? 0.3 : volume > 0 ? 1.5 : 0.5,
+  const whiteMaterial = new THREE.MeshBasicMaterial({
+    color: "#FFFFFF",
   });
 
   return (
     <group ref={groupRef}>
       {/* Colored sections */}
       {sections.map((section, index) => {
-        const baseColor = isDisconnected ? disconnectedColor : section.color;
+        const baseColor = section.color;
         const texture = createSolidColorTexture(baseColor);
 
         const material = new THREE.MeshStandardMaterial({
           map: texture,
           emissiveMap: texture,
-          roughness: isDisconnected ? 0.8 : 0.4,
-          metalness: isDisconnected ? 0.2 : 0.6,
-          emissive: emissiveColor.current,
-          emissiveIntensity: isDisconnected ? 0.5 : volume > 0 ? 3.5 : 0.25,
+          roughness: 0.9,
+          metalness: 0.1,
+          emissive: new THREE.Color(baseColor),
+          emissiveIntensity: 0.6,
         });
 
         return (
@@ -297,7 +276,7 @@ const Shape: React.FC<{ volume: number; state: AgentState }> = ({
       })}
 
       {/* White line decorations */}
-      {!isDisconnected && lineDecorations.map((line, index) => (
+      {lineDecorations.map((line, index) => (
         <mesh
           key={`line-${index}`}
           geometry={line.geometry}
@@ -322,14 +301,6 @@ export const GeminiMark = ({
       <pointLight position={[2, 0, 0]} intensity={5} />
       <Shape volume={volume} state={state} />
       <Environment preset="night" background={false} />
-      <EffectComposer>
-        <Bloom
-          intensity={volume > 0 ? 2 : 0}
-          radius={50}
-          luminanceThreshold={0.0}
-          luminanceSmoothing={1}
-        />
-      </EffectComposer>
     </Canvas>
   );
 };
